@@ -1,5 +1,5 @@
 import { useState } from "react";   
-import './HomePage.css';
+//import './HomePage.css';
 import RecipeCard from "../components/RecipeCard";
 
 
@@ -67,3 +67,66 @@ function HomePage() {
     }
   ]);
 
+const [selectedCategory, setSelectedCategory] = useState('All');
+
+const categories = ['All', ...new Set(recipes.map(recipe => recipe.category))];
+
+const filteredRecipes = selectedCategory === 'All' ? recipes : recipes.filter(recipe => recipe.category === selectedCategory);
+
+const totalRecipes = recipes.length;
+
+const avgCookTime = recipes.reduce((total, recipe) => total + recipe.cookTime, 0) / recipes.length;
+
+return (
+    <div className="home-page">
+        <div className="home-header">
+            <div className="home-title-section">
+                <h1 className="page-title">My Recipe Collection</h1>
+                <p className="page-subtitle">
+                    Organize and manage your favorite recipes
+                </p>
+            </div>
+            <div className="home-stats">
+                <div className="stat-card">
+                    <span className="stat-number">{totalRecipes}</span>
+                  
+                  <span className="stat-label">Total Recipes
+
+                  </span>
+
+                    </div> 
+
+                    <div className="stat-card">
+                    <span className="stat-number">{avgCookTime}</span>
+                    <span className="stat-label">avg Cook Time -min-</span>
+                    </div>
+
+                    <div className="stat-card">
+                        <span className="stat-number">{categories.length - 1}</span>
+                        <span className="stat-label">Categories</span>
+                    </div>
+    </div>
+    </div>
+
+
+    <div className="recipies-grid">
+
+        {
+            filteredRecipes.map(recipe => (
+                <RecipeCard key={recipe.id} recipe={recipe}  />
+            ))
+        }
+    </div>
+
+    {
+        filteredRecipes.length === 0 && (
+            <p className="no-recipes-message">
+                No recipes found for the selected category.
+            </p>
+        )
+    }
+    </div>
+);
+}
+        
+export default HomePage;
