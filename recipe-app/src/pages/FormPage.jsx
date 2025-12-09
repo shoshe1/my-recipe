@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-//import { validateRecipeForm } from "../utils/validation";
-//import './FormPage.css';
+import { validateRecipeForm } from "../utils/validation";
+import './FormPage.css';
 
 
 function FormPage() {
@@ -174,11 +174,7 @@ className={errors.instructions ? 'input-error' : ''}
 {errors.instructions && <span className="error-message">{errors.instructions}</span>}
 </div>
 
-successMessage && (
-    <div className="success-message">
-        {successMessage}
-    </div>
-)
+
 
 <button type="submit" className="submit-button">
     Submit Recipe
