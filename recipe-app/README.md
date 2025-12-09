@@ -10,6 +10,15 @@ Discover recipes from around the world using TheMealDB API
 Search for specific dishes
 View detailed recipe information including ingredients and instructions
 
+ The 3 Required Pages
+1️⃣ Home / Content Page
+File: src/pages/HomePage.jsx
+
+2️⃣ Form Page
+File: src/pages/FormPage.jsx
+
+3️⃣ API Page
+File: src/pages/ApiPage.jsx
 
 🚀 Getting Started
 Prerequisites
