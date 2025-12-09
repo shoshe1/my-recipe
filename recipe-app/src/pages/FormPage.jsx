@@ -176,7 +176,7 @@ className={errors.instructions ? 'input-error' : ''}
 
 
 
-<button type="submit" className="submit-button">
+<button type="submit" className="submit-btn">
     Submit Recipe
 </button>
 
