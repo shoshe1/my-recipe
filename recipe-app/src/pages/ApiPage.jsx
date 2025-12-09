@@ -1,5 +1,5 @@
 import {useState , useEffect} from 'react';
-import {searchRecipes , getRandomRecipe} from '../utils/api';
+import {searchRecipes , getRandomRecipe} from '../services/recipeApi';
 
 import RecipeCard from '../components/RecipeCard';
 import RecipeModal from '../components/RecipeModal';
