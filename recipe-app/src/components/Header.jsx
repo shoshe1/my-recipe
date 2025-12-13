@@ -10,24 +10,30 @@ function Header({ currentPage, setCurrentPage }) {
         </div>
         
         <nav className="header-nav">
-          <button
-            className={`nav-button ${currentPage === 'home' ? 'active' : ''}`}
-            onClick={() => setCurrentPage('home')}
-          >
+          <NavLink
+          to="/"
+          className={({isActive}) => `nav-button ${isActive ? 'active' : ''}`}>
+
             🏠 My Recipes
-          </button>
-          <button
-            className={`nav-button ${currentPage === 'form' ? 'active' : ''}`}
-            onClick={() => setCurrentPage('form')}
-          >
+          </NavLink>
+          
+          
+          <NavLink
+          to="/form"
+          className={({isActive}) => `nav-button ${isActive ? 'active' : ''}`}>
             ➕ Add Recipe
-          </button>
-          <button
-            className={`nav-button ${currentPage === 'api' ? 'active' : ''}`}
-            onClick={() => setCurrentPage('api')}
-          >
+          </NavLink>
+          <NavLink
+          to="/api"
+          className={({isActive}) => `nav-button ${isActive ? 'active' : ''}`}>
+          
             🔍 Discover
-          </button>
+          </NavLink>
+          <NavLink
+          to="/favorites"
+          className={({isActive}) => `nav-button ${isActive ? 'active' : ''}`}>
+            ❤️ Favorites
+          </NavLink>
         </nav>
       </div>
     </header>
