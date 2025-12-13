@@ -46,6 +46,35 @@
   text-transform: capitalize;
 }
 
+
+.favorite-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+
+.favorite-btn.favorited {
+  background: var(--primary-orange);
+  color: white;
+}
+
+.favorite-btn:hover {
+  background: var(--primary-orange);
+  color: white;
+}
 .recipe-card-content {
   padding: 1.25rem;
   flex: 1;
