@@ -1,6 +1,16 @@
 import './RecipeCard.css';
+import {useFavorites} from '../context/favoritesContext';
 
 function RecipeCard({ recipe , onCardClick}) {
+
+    const {isFavorite, toggleFavorite} = useFavorites();
+const recipeId = recipe.id || recipe.idMeal;
+const isInFavorites = isFavorite(recipeId);
+
+const handleFavoriteClick = (e) => {
+    e.stopPropagation();
+    toggleFavorite(recipe);
+};
 
 const getDifficultyColor = (difficulty) => {
     switch (difficulty.toLowerCase()) {
@@ -23,8 +33,16 @@ const getDifficultyColor = (difficulty) => {
           <div className="recipe-card-category">
             {recipe.category || recipe.strCategory || 'General'}
           </div>
-            </div>
+            
 
+
+<button
+className={`favorite-btn ${isInFavorites ? 'favorited' : ''}`} onClick={handleFavoriteClick}
+title={isInFavorites ? 'Remove from favorites' : 'Add to favorites'}>
+    {isInFavorites ? '❤️' : '🤍'}
+</button>
+
+</div>
             <div className="recipe-card-content">
                 <h3 className="recipe-card-title">{recipe.name || recipe.strMeal}</h3>
                 
