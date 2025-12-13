@@ -68,6 +68,23 @@
   border-color: white;
 }
 
+
+.favorites-badge {
+ padding: 0.2rem 0.5rem ;
+ border-radius: 12px;
+  background: white;
+ 
+
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-left: 0.5rem;
+  color: var(--primary-orange);
+}
+
+.nav-button.active .favorites-badge {
+  background: var(--primary-orange);
+  color: white;
+}
 /* Responsive Design */
 @media (max-width: 768px) {
   .header-container {
