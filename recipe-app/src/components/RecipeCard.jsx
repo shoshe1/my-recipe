@@ -1,15 +1,19 @@
 import './RecipeCard.css';
 import {useFavorites} from '../context/favoritesContext';
 
+import { useDispatch , useSelector } from 'react-redux';
+import{toggleFavorite , selectIsFavorite} from '../store/favoritesSlice';
+
+
 function RecipeCard({ recipe , onCardClick}) {
 
-    const {isFavorite, toggleFavorite} = useFavorites();
+const dispatch = useDispatch();
 const recipeId = recipe.id || recipe.idMeal;
-const isInFavorites = isFavorite(recipeId);
+const isInFavorites = useSelector((state) => selectIsFavorite(state, recipeId));
 
 const handleFavoriteClick = (e) => {
     e.stopPropagation();
-    toggleFavorite(recipe);
+    dispatch(toggleFavorite(recipe));
 };
 
 const getDifficultyColor = (difficulty) => {
