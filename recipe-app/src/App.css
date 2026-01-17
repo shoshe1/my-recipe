@@ -42,6 +42,25 @@ body {
   width: 100%;
 }
 
+.theme-dark {
+  --primary-orange: #ff8c5a;
+  --secondary-cream: #1a1a1a;
+  --dark-brown: #e0e0e0;
+  --light-brown: #c9a88a;
+  --text-dark: #e0e0e0;
+  --text-light: #a0a0a0;
+  --border-gray: #3a3a3a;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  --bg-main: #1a1a1a;
+  --bg-secondary: #2a2a2a;
+  --bg-card: #252525;
+  --success-green: #66bb6a;
+  --error-red: #ef5350;
+  --warning-yellow: #ffca28;
+  background-color: var(--bg-main);
+}
+
+
 @media (max-width: 768px) {
   .main-content {
     padding: 1rem;
