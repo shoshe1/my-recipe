@@ -1,7 +1,11 @@
 import './Header.css';
 import { NavLink } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import {selectFavoritesCount} from '../store/favoritesSlice';
 
-function Header({ currentPage, setCurrentPage }) {
+
+function Header({ theme, toggleTheme }) {
+  const favoritesCount = useSelector(selectFavoritesCount);
   return (
     <header className="header">
       <div className="header-container">
@@ -34,7 +38,13 @@ function Header({ currentPage, setCurrentPage }) {
           to="/favorites"
           className={({isActive}) => `nav-button ${isActive ? 'active' : ''}`}>
             ❤️ Favorites
+            {favoritesCount > 0 && <span className="favorites-badge">{favoritesCount}</span>}
           </NavLink>
+          <button onClick={toggleTheme}
+          className="theme-toggle-btn"
+          title={`Switch to ${theme ==='light' ? 'dark' : 'light'}mode`}>
+            {theme === 'light' ?   '🌙' : '☀️' }
+          </button>
         </nav>
       </div>
     </header>
