@@ -10,9 +10,19 @@
   height: 100%;
 }
 
+.theme-dark .recipe-card {
+  background: var(--bg-card, #252525);
+  border: 1px solid var(--border-gray);
+}
+
 .recipe-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.theme-dark .recipe-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  border-color: var(--primary-orange);
 }
 
 .recipe-card-image {
@@ -89,6 +99,10 @@
   color: var(--dark-brown);
   margin: 0;
   line-height: 1.3;
+}
+
+.theme-dark .recipe-card-title {
+  color: var(--text-dark);
 }
 
 .recipe-card-meta {
