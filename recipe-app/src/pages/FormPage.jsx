@@ -32,8 +32,20 @@ function FormPage() {
 const [errors , setErrors] = useState('');
 const[successMessage , setSuccessMessage]=useState('');
 
+const handleImageChange =(e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImage(reader.result);
 
-const updateFormDraft = (field , value) => {
+            setImagePreview(reader.result);
+            updateFormDraft('image' , reader.result);
+        };
+        reader.readAsDataURL(file);
+    }
+};
+const updateDraft = (field , value) => {
     setFormDraft ({
         ...formDraft ,
         [field] : value ,
