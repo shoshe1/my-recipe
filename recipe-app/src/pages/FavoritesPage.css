@@ -46,6 +46,13 @@
     margin-top: 4rem;
 }
 
+.theme-dark .empty-favorites {
+    background: var(--bg-card, #252525);
+    color: var(--text-dark);
+    border: 1px solid var(--border-gray);
+    border-radius: 12px;
+    padding: 3rem;
+}
 
 .empty-icon {
     font-size: 4rem;
