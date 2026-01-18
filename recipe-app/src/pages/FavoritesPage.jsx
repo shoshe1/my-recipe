@@ -1,13 +1,17 @@
 import { useState } from 'react';
-import { useFavorites } from '../context/favoritesContext'; 
 
 import RecipeCard from '../components/RecipeCard';
 import './FavoritesPage.css';
 import RecipeModal from '../components/RecipeModal';
 
+import { useSelector , useDispatch } from 'react-redux';
+import {selectFavorites , clearFavorites, clearAllFavorites} from '../store/favoritesSlice';
+
 
 function FavoritesPage() {
-    const { favoritess , clearFavorites } = useFavorites();
+    const favorites = useSelector(selectFavorites);
+    const dispatch = useDispatch();
+
     const [selectedRecipe, setSelectedRecipe] = useState(null);
     const [showModal, setShowModal] = useState(false);
 
@@ -24,7 +28,9 @@ function FavoritesPage() {
 
     const handleClearFavorites = () => {
         if (window.confirm('Are you sure you want to clear all favorites?')) {
-            clearFavorites();
+            
+            dispatch(clearAllFavorites());
+
         }
     };
 
@@ -33,10 +39,10 @@ function FavoritesPage() {
             <div className="favorites-header">
                 <h1 className='page-title'>My Favorite Recipes</h1>
                 <p className='page-subtitle'>
-                    You have {favoritess.length} favorite {favoritess.length === 1 ? 'recipe' : 'recipes'}.
+                    You have ${favorites.length} favorite {favorites.length === 1 ? 'recipe' : 'recipes'}.
                 </p>
 
-                {favoritess.length > 0 && (
+                {favorites.length > 0 && (
                     <button onClick={handleClearFavorites} className='clear-all-btn'>
                         Clear All Favorites
                     </button>
@@ -44,9 +50,9 @@ function FavoritesPage() {
             </div>
 
             {
-                favoritess.length > 0 ? (
+                favorites.length > 0 ? (
                     <div className="recipe-grid">
-                        {favoritess.map((recipe) => (
+                        {favorites.map((recipe) => (
                             <RecipeCard
                                 key={recipe.id || recipe.idMeal}
                                 recipe={recipe}
