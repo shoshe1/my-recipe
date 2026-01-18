@@ -1,81 +1,51 @@
-import {useState , useEffect} from 'react';
-import {searchRecipes , getRandomRecipe} from '../services/recipeApi';
+import {useState} from 'react';
 
 import RecipeCard from '../components/RecipeCard';
 import RecipeModal from '../components/RecipeModal';
 import './ApiPage.css';
 
+import useFetch from '../hooks/useFetch';
+
+
 
 
 function ApiPage() {
-    const [recipes ,setRecipes]= useState ([]);
+
     const [searchTerm , setSearchTerm]= useState ('');
-    const [loading , setLoading]= useState (false);
-    const [error , setError]= useState (null);
-    const [selectedRecipe , setSelectedRecipe]= useState (null);
-    const [showModal , setShowModal]= useState (false);
 
-    useEffect (() => {
-        handleRandomRecipe();
-    } ,[]);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
 
-    const fetchInitialRecipes = async () => {
+    const [apiUrl , setApiUrl]= useState ('https://www.themealdb.com/api/json/v1/1/search.php?s=chicken');
+    const [showModal , setShowModal] = useState(false);
 
-        try
-        {
-            setLoading (true);
-            setError ('');
-            const data = await searchRecipes ('chicken');
-            setRecipes (data || []  );
-        }
-        catch (error)
-        {
-            setError ('Failed to fetch recipes. Please try again later.');
-        }
-        finally
-        {
-            setLoading (false);
-        }
-    };
 
-    const handleSearch = async (e) => {
+    const [data ,loading , error , refetch ] = useFetch (apiUrl);
+    const recipes = data?.meals || [] ;
+
+
+    const handleSearch = (e) => {
         e.preventDefault();
-        if (!searchTerm.trim()) return;
-
-        try {
-            setLoading (true);
-            setError ('');
-            const data = await searchRecipes (searchTerm);
-            if (!data || data.length === 0) {
-                setError ('No recipes found for the given search term.');
-                setRecipes ([]);
-            } else {
-                setRecipes (data);
-            }
-        } catch (error) {
-            setError ('Failed to fetch recipes. Please try again later.');
-        } finally {
-            setLoading (false);
-        }
+        if (!searchTerm.trim()) { return;
+    }
+        setApiUrl (`https://www.themealdb.com/api/json/v1/1/search.php?s=${searchTerm}`);
     };
 
-    const handleRandomRecipe = async () => {
-        try {
-            setLoading (true);
-            setError ('');
-            const data = await getRandomRecipe ();
-            setRecipes ([data]);
-        } catch (error) {
-            setError ('Failed to fetch random recipe. Please try again later.');
-        } finally {
-            setLoading (false);
-        }
+
+    const handleRandomRecipe = () => {
+        setApiUrl ('https://www.themealdb.com/api/json/v1/1/random.php');
     };
 
     const handleCardClick = (recipe) => {
         setSelectedRecipe(recipe);
         setShowModal(true);
     };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setSelectedRecipe(null);
+    };
+
+
 
     return (
         <div className="api-page">
@@ -107,7 +77,7 @@ function ApiPage() {
                    {loading &&(
                     <div className='loading-container'>
                     <div className='loading-spinner'> 🍳</div>
-                    <p>Loading...</p></div>
+                    <p>Loading ...</p></div>
                    )} 
 
 
@@ -117,8 +87,14 @@ function ApiPage() {
 <p className='error-message'>{error}</p>
 </div>
                    )}
-
-
+                
+{
+    !loading && !error && (!data?.meals || data.meals.length === 0) && (
+        <div className='error-container'>
+            <p className='error-message'>No recipes found. Try a different search term.</p>
+        </div>
+    )
+}   
                    {!loading && !error && recipes.length > 0 && (
                     <div className='recipes-grid'>
                         {recipes.map((recipe) => (
@@ -138,6 +114,7 @@ function ApiPage() {
                             <p>No recipes to display. Try searching for something!</p>
                         </div>
     )}
+
 
 
                      {showModal && selectedRecipe && (
