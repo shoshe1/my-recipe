@@ -24,6 +24,10 @@
     margin-bottom: 0.5rem;
 }
 
+.theme-dark .page-title {
+    color: var(--text-dark);
+}
+
 .page-subtitle {
     font-size: 1.1rem;
     color: var(--text-light);
@@ -50,7 +54,10 @@
     gap: 0.5rem;
 }
 
-
+.theme-dark .stat-card {
+    background: var(--bg-card, #252525);
+    border: 1px solid var(--border-gray);
+}
 
 .stat-number {
 
@@ -78,10 +85,19 @@ font-weight: 500;
     margin-bottom: 2rem;
 }
 
+.theme-dark .category-filter {
+    background: var(--bg-card, #252525);
+    border: 1px solid var(--border-gray);
+}
+
 .category-filter h3 {
     font-size: 1.1rem;
     color: var(--dark-brown);
     margin-bottom: 1rem;
+}
+
+.theme-dark .category-filter h3 {
+    color: var(--text-dark);
 }
 
 .category-buttons {
