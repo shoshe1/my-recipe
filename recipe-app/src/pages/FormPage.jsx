@@ -3,20 +3,41 @@ import { useState } from "react";
 import { validateRecipeForm } from "../utils/validation";
 import './FormPage.css';
 
+import useLocalStorage from "../hooks/useLocalStorage";
+
+
 
 function FormPage() {
-    const [name , setName] = useState('');
-    const [category , setCategory] = useState('');
-    const [difficulty , setDifficulty] = useState('');
-    const [cookTime , setCookTime] = useState('');
-    const [servings , setServings] = useState('');
-    const [ingredients , setIngredients] = useState('');
-    const [instructions , setInstructions]= useState('');
+
+    const [formDraft , setFormDraft]= useLocalStorage ('recipe-form-draft' , {
+        name: '',
+        category: '',
+        difficulty: '',
+        cookTime: '',
+        servings: '',
+        ingredients: '',
+        instructions: '',
+    });
+
+    const [name , setName] = useState(formDraft.name || '' );
+    const [category , setCategory] = useState(formDraft.category || '');
+    const [difficulty , setDifficulty] = useState(formDraft.difficulty || '');
+    const [cookTime , setCookTime] = useState(formDraft.cookTime || '');
+    const [servings , setServings] = useState(formDraft.servings || '');
+    const [ingredients , setIngredients] = useState(formDraft.ingredients || '');
+    const [instructions , setInstructions]= useState(formDraft.instructions || '');
 
 
 const [errors , setErrors] = useState('');
 const[successMessage , setSuccessMessage]=useState('');
 
+
+const updateFormDraft = (field , value) => {
+    setFormDraft ({
+        ...formDraft ,
+        [field] : value ,
+    });
+};
 
 
 
@@ -34,6 +55,23 @@ const handleSubmit=(e)=>{
         setSuccessMessage('');
     } else {
         setErrors({});
+        
+        // Save recipe to localStorage
+        const savedRecipes = JSON.parse(localStorage.getItem('my-recipes') || '[]');
+        const newRecipe = {
+            id: Date.now(),
+            name,
+            category,
+            difficulty,
+            cookTime,
+            servings,
+            ingredients,
+            instructions,
+            createdAt: new Date().toISOString()
+        };
+        savedRecipes.push(newRecipe);
+        localStorage.setItem('my-recipes', JSON.stringify(savedRecipes));
+        
         setSuccessMessage('Recipe submitted successfully!');
 
 
@@ -46,6 +84,17 @@ const handleSubmit=(e)=>{
         setIngredients('');
         setInstructions('');
         setSuccessMessage('');
+
+        setFormDraft({
+            name: '',
+            category: '',
+            difficulty: '',
+            cookTime: '',
+            servings: '',
+            ingredients: '',
+            instructions: '',
+        });
+
        }, 2000);
 
 }
