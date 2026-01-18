@@ -19,13 +19,13 @@ function FormPage() {
         instructions: '',
     });
 
-    const [name , setName] = useState(formDraft.name || '' );
-    const [category , setCategory] = useState(formDraft.category || '');
-    const [difficulty , setDifficulty] = useState(formDraft.difficulty || '');
-    const [cookTime , setCookTime] = useState(formDraft.cookTime || '');
-    const [servings , setServings] = useState(formDraft.servings || '');
-    const [ingredients , setIngredients] = useState(formDraft.ingredients || '');
-    const [instructions , setInstructions]= useState(formDraft.instructions || '');
+    const [name , setName] = useState(formDraft.name  );
+    const [category , setCategory] = useState(formDraft.category );
+    const [difficulty , setDifficulty] = useState(formDraft.difficulty );
+    const [cookTime , setCookTime] = useState(formDraft.cookTime);
+    const [servings , setServings] = useState(formDraft.servings );
+    const [ingredients , setIngredients] = useState(formDraft.ingredients);
+    const [instructions , setInstructions]= useState(formDraft.instructions);
 
 
 const [errors , setErrors] = useState('');
