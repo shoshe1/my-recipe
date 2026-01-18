@@ -26,7 +26,8 @@ function FormPage() {
     const [servings , setServings] = useState(formDraft.servings );
     const [ingredients , setIngredients] = useState(formDraft.ingredients);
     const [instructions , setInstructions]= useState(formDraft.instructions);
-
+   const [image , setImage]= useState(formDraft.image );
+   const[imagePreview , setImagePreview]= useState(formDraft.image );
 
 const [errors , setErrors] = useState('');
 const[successMessage , setSuccessMessage]=useState('');
