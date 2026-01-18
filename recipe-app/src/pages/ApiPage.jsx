@@ -19,7 +19,7 @@ function ApiPage() {
     const [showModal , setShowModal] = useState(false);
 
 
-    const [data ,loading , error , refetch ] = useFetch (apiUrl);
+    const { data, loading, error, refetch } = useFetch(apiUrl);
     const recipes = data?.meals || [] ;
 
 
