@@ -1,184 +1,307 @@
 # 🍳 Recipe Manager Application
 
+A full-featured React application for managing and discovering recipes, built as part of the ReactJS course Homework #3 assignment.
+
 ## 📖 About This Project
-This Recipe Manager is a full-featured React application that allows users to:
 
-- 📚 Browse their personal recipe collection
-- ➕ Add new recipes with detailed information
-- 🔍 Discover recipes from around the world using TheMealDB API
-- 🔎 Search for specific dishes
-- ❤️ Save favorite recipes for quick access
-- 📖 View detailed recipe information including ingredients and instructions
+This Recipe Manager allows users to:
+- **Browse** their personal recipe collection with filtering
+- **Add** new recipes with image upload and validation
+- **Discover** recipes from around the world using TheMealDB API
+- **Favorite** recipes with persistent storage
+- **Search** for specific dishes
+- **View** detailed recipe information including ingredients and instructions
+- **Switch themes** between light and dark mode
 
-## 🏗️ Application Structure
+## 🎯 Homework #3 Requirements
 
-### The 3 Required Pages
+### ✅ Part 1 – Custom Hook: useLocalStorage (COMPLETE)
 
-#### 1️⃣ Home / Content Page
-**File:** `src/pages/HomePage.jsx`
-- Displays your personal recipe collection
-- Shows recipe statistics (total recipes, average cook time, categories)
-- Filter recipes by category
-- View recipe cards in a responsive grid layout
+**Location:** `src/hooks/useLocalStorage.js`
 
-#### 2️⃣ Form Page
-**File:** `src/pages/FormPage.jsx`
-- Add new recipes to your collection
-- Input fields: name, category, difficulty, cook time, servings, ingredients, instructions
-- Form validation with error messages
+**Requirements Met:**
+- ✅ Created `useLocalStorage(key, initialValue)` custom hook
+- ✅ Reads initial value from localStorage on mount
+- ✅ Automatically saves updates to localStorage when value changes
+- ✅ Returns `[value, setValue]` like useState
 
-#### 3️⃣ API Page
-**File:** `src/pages/ApiPage.jsx`
-- Discover recipes from TheMealDB API
-- Search functionality for finding specific recipes
-- Random recipe generator
-- View external recipes with full details
+**Usage in Application (2+ components):**
+1. **App.jsx** - Theme persistence
+   ```javascript
+   const [theme, setTheme] = useLocalStorage('app-theme', 'light');
+   ```
+   - Persists user's theme preference (light/dark)
+   - Survives page refreshes
 
-### Additional Pages
+2. **FormPage.jsx** - Form draft auto-save
+   ```javascript
+   const [formDraft, setFormDraft] = useLocalStorage('recipe-form-draft', {
+       name: '', category: '', difficulty: '', cookTime: '', 
+       servings: '', ingredients: '', instructions: '', image: ''
+   });
+   ```
+   - Automatically saves form progress
+   - Prevents data loss on accidental page refresh
+   - Includes uploaded image preview
 
-#### 4️⃣ Favorites Page
-**File:** `src/pages/FavoritesPage.jsx`
-- View all your saved favorite recipes
-- Quick access to recipes you love
-- Clear all favorites functionality
+**How it works:**
+- Syncs state with localStorage automatically
+- Handles JSON serialization/deserialization
+- Graceful error handling for localStorage access issues
 
-#### 5️⃣ Not Found Page
-**File:** `src/pages/NotFoundPage.jsx`
-- 404 error page for invalid routes
-- Navigate back to home page
+---
 
-## 🔄 React Context - Favorites Management
+### ✅ Part 2 – Custom Hook: useFetch (COMPLETE)
 
-**File:** `src/context/favoritesContext.jsx`
+**Location:** `src/hooks/useFetch.js`
 
-### What It Stores
-The `FavoritesContext` stores and manages the user's favorite recipes globally across the application.
+**Requirements Met:**
+- ✅ Created `useFetch(url, options)` custom hook
+- ✅ Manages `data`, `loading`, `error` states internally
+- ✅ Exposes `refetch()` function for manual re-fetching
+- ✅ Supports dynamic URLs (re-fetches when URL changes)
+- ✅ Uses axios for HTTP requests
+- ✅ **No fetch logic duplicated in components**
 
-**State:**
-- `favoritess` - Array of favorite recipe objects
-- `favoritesCount` - Number of favorited recipes (for badge display)
+**Usage in Application:**
+1. **ApiPage.jsx** - TheMealDB API integration
+   ```javascript
+   const { data, loading, error, refetch } = useFetch(apiUrl);
+   const recipes = data?.meals || [];
+   ```
+   - Search recipes by keyword
+   - Fetch random recipes
+   - Dynamic URL updates trigger automatic re-fetch
 
-### How We Use It
-The context provides these functions throughout the app:
+**Features:**
+- Loading states with spinner UI
+- Error handling with user-friendly messages
+- Automatic re-fetch when URL dependency changes
+- `useCallback` optimization prevents unnecessary re-renders
 
-- **`addFavorite(recipe)`** - Adds a recipe to favorites (prevents duplicates)
-- **`removeFavorite(recipeId)`** - Removes a recipe from favorites by ID
-- **`isFavorite(recipeId)`** - Checks if a recipe is already favorited (for heart icon state)
-- **`toggleFavorite(recipe)`** - Adds or removes a recipe (used in RecipeCard buttons)
-- **`clearFavorites()`** - Removes all favorites at once
+---
 
-**Usage Example:**
-```jsx
-import { useFavorites } from '../context/favoritesContext';
+### ✅ Part 3 – Redux Toolkit (COMPLETE)
 
-function RecipeCard({ recipe }) {
-  const { isFavorite, toggleFavorite, favoritesCount } = useFavorites();
-  
-  const handleFavoriteClick = () => {
-    toggleFavorite(recipe);
-  };
-  
-  return (
-    <button onClick={handleFavoriteClick}>
-      {isFavorite(recipe.id) ? '❤️' : '🤍'}
-    </button>
-  );
-}
+**Packages Installed:**
+- ✅ `@reduxjs/toolkit` - Redux logic and utilities
+- ✅ `react-redux` - React bindings for Redux
+
+**Store Configuration:** `src/store/store.js`
+```javascript
+import { configureStore } from '@reduxjs/toolkit';
+import favoritesReducer from './favoritesSlice';
+
+export const store = configureStore({
+    reducer: {
+        favorites: favoritesReducer
+    }
+});
 ```
 
-**Why Context?**
-- Favorites need to be accessible from multiple pages (HomePage, ApiPage, FavoritesPage)
-- Avoids prop drilling through multiple component layers
-- Provides a single source of truth for favorite recipes
-- Works with both local recipes (id) and API recipes (idMeal)
+**Slice Implementation:** `src/store/favoritesSlice.js`
 
-## 🛣️ React Router - Application Routes
+**Feature Chosen:** ⭐ **Favorites**
 
-**Configuration:** `src/App.jsx` and `src/index.js`
+**State Fields (2+):**
+1. ✅ `items` - Array of favorited recipes
+2. ✅ `lastUpdated` - Timestamp of last modification
 
-### Route Structure
+**Actions (3+):**
+1. ✅ `addFavorite(recipe)` - Add recipe to favorites
+2. ✅ `removeFavorite(recipeId)` - Remove recipe from favorites
+3. ✅ `toggleFavorite(recipe)` - Toggle favorite status
+4. ✅ `clearAllFavorites()` - Clear all favorites (bonus)
 
-| Path | Component | Description |
-|------|-----------|-------------|
-| `/` | `HomePage` | Main page - displays personal recipe collection |
-| `/form` | `FormPage` | Add new recipe form with validation |
-| `/api` | `ApiPage` | Search and discover recipes from TheMealDB API |
-| `/favorites` | `FavoritesPage` | View all saved favorite recipes |
-| `*` | `NotFoundPage` | 404 error page for invalid URLs |
+**Selectors:**
+- `selectFavorites` - Get all favorite recipes
+- `selectFavoritesCount` - Get count of favorites
+- `selectIsFavorite(state, recipeId)` - Check if recipe is favorited
+- `selectLastUpdated` - Get last update timestamp
 
-### Navigation Flow
+**Special Features:**
+- Automatically syncs with localStorage
+- Handles both user recipes (id) and API recipes (idMeal)
+- Loads favorites from localStorage on app initialization
+
+---
+
+### ✅ Part 4 – Use Redux in UI (COMPLETE)
+
+**`useSelector` Usage (3 components):**
+
+1. **Header.jsx**
+   ```javascript
+   const favoritesCount = useSelector(selectFavoritesCount);
+   ```
+   - Displays favorites count badge in navigation
+   - Updates in real-time when favorites change
+
+2. **RecipeCard.jsx**
+   ```javascript
+   const isInFavorites = useSelector((state) => selectIsFavorite(state, recipeId));
+   ```
+   - Shows filled/outlined heart icon based on favorite status
+   - Visual feedback for user
+
+3. **FavoritesPage.jsx**
+   ```javascript
+   const favorites = useSelector(selectFavorites);
+   ```
+   - Displays all favorited recipes
+   - Shows empty state when no favorites exist
+
+**`useDispatch` Usage (2 components):**
+
+1. **RecipeCard.jsx**
+   ```javascript
+   const dispatch = useDispatch();
+   const handleFavoriteClick = () => {
+       dispatch(toggleFavorite(recipe));
+   };
+   ```
+   - Toggles favorite status on click
+   - Works for both HomePage and ApiPage recipes
+
+2. **FavoritesPage.jsx**
+   ```javascript
+   const dispatch = useDispatch();
+   const handleClearAll = () => {
+       dispatch(clearAllFavorites());
+   };
+   ```
+   - Clear all favorites with one click
+   - Shows confirmation message
+
+**Visible UI Effects:**
+- ❤️ Favorites badge in header shows live count
+- 💛 Heart icon changes color when favorited
+- 📋 FavoritesPage displays all saved recipes
+- 🔄 All components stay in sync through Redux
+
+**🚫 No Custom Hook for Redux** - Following best practices, Redux logic stays in the slice
+
+---
+
+### ✅ Part 5 – Replace Context (COMPLETE)
+
+**Previous Implementation:** Used Context API for favorites (Homework #2)
+
+**Current Implementation:** Completely replaced with Redux Toolkit
+
+**Changes Made:**
+- ~~`src/context/favoritesContext.jsx`~~ - **Removed** (replaced by Redux)
+- Created `src/store/favoritesSlice.js` - Redux slice for favorites
+- Created `src/store/store.js` - Redux store configuration
+- Updated all components to use `useSelector` and `useDispatch`
+- Added `<Provider store={store}>` in `index.js`
+
+**Why Redux is Better:**
+- Better DevTools integration
+- Time-travel debugging
+- Middleware support (logging, persistence)
+- More predictable state updates
+- Better TypeScript support
+
+---
+
+
+
+## 🎯 Previous Assignment Requirements (Homework #2)
+
+### 1️⃣ Home / Content Page (`HomePage.jsx`)
+**Location:** `src/pages/HomePage.jsx`
+
+✅ **Requirements Met:**
+- Uses `useState` to manage recipes array and category filter
+- Renders recipe list using `.map()`
+- Passes data to `RecipeCard` child component via props
+- Fully styled with responsive design
+- **Extra Features:** Category filtering, recipe stats, difficulty badges
+
+### 2️⃣ Form Page (`FormPage.jsx`)
+**Location:** `src/pages/FormPage.jsx`
+
+✅ **Requirements Met:**
+- **7 controlled inputs** (all using `useState`):
+  - Recipe Name (text)
+  - Category (select)
+  - Difficulty (select)
+  - Cook Time (number)
+  - Servings (number)
+  - Ingredients (textarea)
+  - Instructions (textarea)
+- **Comprehensive validation:**
+  - Name must be 3+ characters
+  - All required fields validated
+  - Numbers must be positive
+  - Clear error messages
+- Console logs complete form data on submit
+- Success message after submission
+
+### 3️⃣ API Page (`ApiPage.jsx`)
+**Location:** `src/pages/ApiPage.jsx`
+
+✅ **Requirements Met:**
+- Uses **axios** to call TheMealDB API
+- Shows **loading state** with animated icon
+- Shows **error state** with clear messages
+- Displays data using `.map()`
+- Each list item has proper `key={recipe.idMeal}`
+- Displays meaningful data (title, image, category, etc.)
+- **Extra Features:** Search functionality, random recipe generator, detailed modal view
+
+## 🏗️ Project Structure
 
 ```
-Header (Navigation Bar)
-├── 🏠 My Recipes → /
-├── ➕ Add Recipe → /form
-├── 🔍 Discover → /api
-└── ❤️ Favorites → /favorites (with count badge)
+recipe-app/
+├── public/
+│   ├── index.html
+│   └── manifest.json
+├── src/
+│   ├── components/          # Reusable UI components
+│   │   ├── Header.jsx       # Navigation (uses Redux)
+│   │   ├── Header.css
+│   │   ├── RecipeCard.jsx   # Recipe display (uses Redux)
+│   │   ├── RecipeCard.css
+│   │   ├── RecipeModal.jsx  # Recipe details modal
+│   │   └── RecipeModal.css
+│   ├── pages/               # Main page components
+│   │   ├── HomePage.jsx     # Recipe collection
+│   │   ├── HomePage.css
+│   │   ├── FormPage.jsx     # Add recipe (uses useLocalStorage)
+│   │   ├── FormPage.css
+│   │   ├── ApiPage.jsx      # API discovery (uses useFetch)
+│   │   ├── ApiPage.css
+│   │   ├── FavoritesPage.jsx # Favorites list (uses Redux)
+│   │   ├── FavoritesPage.css
+│   │   └── NotFoundPage.jsx
+│   ├── hooks/               # ⭐ Custom Hooks
+│   │   ├── useLocalStorage.js  # Persistent state hook
+│   │   └── useFetch.js         # API data fetching hook
+│   ├── store/               # ⭐ Redux State
+│   │   ├── store.js         # Configure Redux store
+│   │   └── favoritesSlice.js   # Favorites slice + actions
+│   ├── utils/               # Helper functions
+│   │   └── validation.js    # Form validation logic
+│   ├── services/            # API services
+│   │   └── recipeApi.js     # TheMealDB API calls
+│   ├── App.jsx              # Main app (uses useLocalStorage)
+│   ├── App.css
+│   ├── index.js             # Entry point + Redux Provider
+│   └── index.css
+├── docs/                    # 📊 Documentation
+│   └── architecture.md      # Mermaid diagrams & architecture
+├── package.json
+└── README.md                # This file
 ```
 
-### How Routes Work
-
-**1. Setup in `index.js`:**
-```jsx
-import { BrowserRouter } from 'react-router-dom';
-
-root.render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
-);
-```
-
-**2. Route Configuration in `App.jsx`:**
-```jsx
-import { Routes, Route } from 'react-router-dom';
-
-function App() {
-  return (
-    <FavoritesProvider>
-      <Header />
-      <Routes>
-        <Route path='/' element={<HomePage />} />
-        <Route path='/form' element={<FormPage />} />
-        <Route path='/api' element={<ApiPage />} />
-        <Route path='/favorites' element={<FavoritesPage />} />
-        <Route path='*' element={<NotFoundPage />} />
-      </Routes>
-    </FavoritesProvider>
-  );
-}
-```
-
-**3. Navigation in `Header.jsx`:**
-```jsx
-import { NavLink } from 'react-router-dom';
-
-<NavLink to="/" className={({isActive}) => isActive ? 'active' : ''}>
-  🏠 My Recipes
-</NavLink>
-```
-
-**Benefits of React Router:**
-- Client-side navigation (no page refresh)
-- Browser back/forward button support
-- Shareable URLs for each page
-- Active link styling with `NavLink`
-- 404 handling with wildcard route
-
-## 🔧 Technologies Used
-
-- **React** - UI library
-- **React Router** - Client-side routing and navigation
-- **Context API** - Global state management for favorites
-- **Axios** - HTTP requests to TheMealDB API
-- **CSS3** - Styling with CSS variables and animations
-
-## 🌐 API Integration
-
-This app uses [TheMealDB API](https://www.themealdb.com/api.php):
-- Search recipes by name
-- Get random recipes
-- Retrieve recipe details by ID
+**Key Files for Homework #3:**
+- 🎣 `src/hooks/useLocalStorage.js` - Custom hook for persistent state
+- 🎣 `src/hooks/useFetch.js` - Custom hook for API calls
+- 🏪 `src/store/store.js` - Redux store configuration
+- 📦 `src/store/favoritesSlice.js` - Redux slice with actions & selectors
+- 📊 `docs/architecture.md` - Mermaid diagrams & architecture docs
 
 ## 🚀 Getting Started
 
@@ -189,31 +312,180 @@ This app uses [TheMealDB API](https://www.themealdb.com/api.php):
 ### Installation
 
 1. **Clone or download the project**
-   ```bash
-   git clone <your-repo-url>
-   cd recipe-app
-   ```
 
 2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
 3. **Start the development server:**
-   ```bash
-   npm start
-   ```
+```bash
+npm start
+```
 
 4. **Open your browser:**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+Navigate to `http://localhost:3000`
 
-## ✨ Key Features
+## 📦 Dependencies
 
-- 🏠 Personal recipe collection with statistics
-- 🔍 Search thousands of recipes from external API
-- ❤️ Favorites system with Context API
-- 🎨 Responsive design for all devices
-- 🎯 Form validation and error handling
-- 🔄 Smooth page transitions with React Router
+```json
+{
+  "react": "^18.x",
+  "react-dom": "^18.x",
+  "react-router-dom": "^6.x",
+  "axios": "^1.x",
+  "@reduxjs/toolkit": "^2.x",
+  "react-redux": "^9.x"
+}
+```
+
+**Core Dependencies:**
+- **react** & **react-dom** - UI library
+- **react-router-dom** - Client-side routing
+- **axios** - HTTP client for API calls
+- **@reduxjs/toolkit** - Modern Redux with less boilerplate
+- **react-redux** - React bindings for Redux
+
+## 🎨 Features & Technologies
+
+### React Concepts Implemented
+
+#### Homework #3 Focus:
+✅ **Custom Hooks**
+- `useLocalStorage` - Persistent state management
+- `useFetch` - Reusable API data fetching
+
+✅ **Redux Toolkit**
+- Global state with `configureStore`
+- Slice pattern with `createSlice`
+- `useSelector` for reading state
+- `useDispatch` for dispatching actions
+- localStorage synchronization
+
+✅ **State Management Patterns**
+- **Local State** (useState) - Form inputs, UI toggles
+- **Persistent State** (localStorage) - Theme, drafts, recipes
+- **Global State** (Redux) - Favorites across components
+
+#### Previous Concepts:
+✅ **Components & Props** - Modular, reusable components
+✅ **useState Hook** - State management for interactive features
+✅ **useEffect Hook** - Side effects and lifecycle
+✅ **Event Handling** - onClick, onChange, onSubmit
+✅ **Controlled Components** - Form inputs controlled by state
+✅ **List Rendering** - `.map()` for dynamic content
+✅ **Conditional Rendering** - Loading, error, and empty states
+✅ **API Integration** - axios with async/await
+✅ **Form Validation** - Real-time validation with error messages
+✅ **React Router** - Navigation with Routes, Route, NavLink
+
+### Design Features
+
+🎨 Professional food-themed color palette
+📱 Fully responsive design
+✨ Smooth animations and transitions
+🖼️ High-quality images
+♿ Accessible form labels and structure
+🎯 User-friendly interface
+
+## 🌐 API Information
+
+This project uses **TheMealDB API** - a free public API for recipe data.
+
+**Endpoints used:**
+- Search: `https://www.themealdb.com/api/json/v1/1/search.php?s={query}`
+- Random: `https://www.themealdb.com/api/json/v1/1/random.php`
+
+## 👨‍💻 Development Notes
+
+### Component Architecture
+- Clean separation of concerns
+- Reusable components with clear props
+- Logical file organization
+- CSS modules per component
+- Custom hooks for reusable logic
+- Redux for cross-component state
+
+### Best Practices Followed
+- Proper key usage in lists
+- Error boundaries and error handling
+- Loading states for better UX
+- Validation before form submission
+- Clean, readable code with comments
+- **No logic duplication** - fetch logic in hooks only
+- **Type safety** with proper prop validation
+- **Performance** - useCallback for expensive operations
+
+### State Management Strategy
+
+| State Type | Tool | Use Case | Example |
+|------------|------|----------|---------|
+| **Local** | useState | Component-specific UI | Form input values, modals |
+| **Persistent** | useLocalStorage | User preferences | Theme, form drafts |
+| **Global** | Redux | Cross-component data | Favorites list, count |
+
+## 📝 Future Enhancements
+
+Potential features to add:
+- ✅ ~~Save recipes to localStorage~~ (DONE)
+- ✅ ~~Recipe favorites~~ (DONE with Redux)
+- ✅ ~~Dark mode theme~~ (DONE with useLocalStorage)
+- Edit and delete recipes
+- Recipe ratings and reviews
+- Shopping list generator
+- Print-friendly recipe view
+- Recipe sharing via URL
+- Image optimization and lazy loading
+- Search within saved recipes
+- Recipe categories with icons
+- Cooking timer integration
+
+## 🧪 Testing Checklist
+
+### Custom Hooks:
+- [x] useLocalStorage persists theme across refreshes
+- [x] useLocalStorage auto-saves form drafts
+- [x] useFetch handles loading states correctly
+- [x] useFetch displays error messages
+- [x] useFetch refetches on URL change
+
+### Redux:
+- [x] Favorites count badge updates in Header
+- [x] Heart icon reflects favorite status
+- [x] FavoritesPage shows all favorites
+- [x] Favorites persist after page refresh
+- [x] Clear all favorites works correctly
+- [x] Toggle favorite works from multiple pages
+
+### Integration:
+- [x] Theme persists across browser sessions
+- [x] Form draft survives page refresh
+- [x] API search returns results
+- [x] Random recipe button works
+- [x] Favorited recipes appear in FavoritesPage
+- [x] Recipe count badge is accurate
+
+## 🙏 Acknowledgments
+
+- TheMealDB API for recipe data
+- React documentation
+- Redux Toolkit documentation
+- Course materials and instructors
+
+## 📋 Submission Checklist
+
+- ✅ GitHub repository with all code
+- ✅ Part 1: useLocalStorage hook (used in 2+ components)
+- ✅ Part 2: useFetch hook (used in ApiPage, no duplicate logic)
+- ✅ Part 3: Redux Toolkit installed and configured
+- ✅ Redux slice with 2+ state fields and 3+ actions
+- ✅ Part 4: useSelector in 3 components
+- ✅ Part 4: useDispatch in 2 components
+- ✅ Part 5: Context API replaced with Redux
+- ✅ Mermaid diagrams in docs/architecture.md
+- ✅ Updated README with all requirements
+- ✅ No node_modules in submission
 
 ---
+
+
