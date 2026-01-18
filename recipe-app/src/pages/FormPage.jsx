@@ -40,7 +40,7 @@ const handleImageChange =(e) => {
             setImage(reader.result);
 
             setImagePreview(reader.result);
-            updateFormDraft('image' , reader.result);
+            updateDraft('image' , reader.result);
         };
         reader.readAsDataURL(file);
     }
@@ -58,7 +58,7 @@ const handleSubmit=(e)=>{
     e.preventDefault();
 
 
-    const formData={ name , category , difficulty , cookTime , servings , ingredients , instructions };
+    const formData={ name , category , difficulty , cookTime :Number(cookTime) , servings : Number(servings)    , ingredients , instructions , image    };
 
 
     const validationErrors= validateRecipeForm(formData);
@@ -66,39 +66,34 @@ const handleSubmit=(e)=>{
     if (Object.keys (validationErrors).length >0){
         setErrors (validationErrors);
         setSuccessMessage('');
-    } else {
+    } 
+    try{
+        const existingRecipes = JSON.parse(localStorage.getItem('my-recipes') || '[]');
+
+        const defaultImages=[
+        'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400',
+        'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400',
+        'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400',
+        'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400',
+        'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400'
+      ];
+
+      const newRecipe ={
+        id: Date.now(),
+        ...formData,
+        image: image || defaultImages[Math.floor(Math.random() * defaultImages.length)]
+      };
+
+        const updatedRecipes =[...existingRecipes , newRecipe];
+        localStorage.setItem('my-recipes' , JSON.stringify (updatedRecipes) );
+
+        window.dispatchEvent (new Event ('recipe-added'));
+
+        console.log('Recipe added: ' , newRecipe);
         setErrors({});
-        
-        // Save recipe to localStorage
-        const savedRecipes = JSON.parse(localStorage.getItem('my-recipes') || '[]');
-        const newRecipe = {
-            id: Date.now(),
-            name,
-            category,
-            difficulty,
-            cookTime,
-            servings,
-            ingredients,
-            instructions,
-            createdAt: new Date().toISOString()
-        };
-        savedRecipes.push(newRecipe);
-        localStorage.setItem('my-recipes', JSON.stringify(savedRecipes));
-        
-        setSuccessMessage('Recipe submitted successfully!');
+        setSuccessMessage('Recipe added successfully!');
 
-
-       setTimeout(() => {
-        setName('');
-        setCategory('');
-        setDifficulty('');
-        setCookTime('');
-        setServings('');
-        setIngredients('');
-        setInstructions('');
-        setSuccessMessage('');
-
-        setFormDraft({
+        setFormDraft ({
             name: '',
             category: '',
             difficulty: '',
@@ -106,12 +101,40 @@ const handleSubmit=(e)=>{
             servings: '',
             ingredients: '',
             instructions: '',
+            image: '',
         });
 
-       }, 2000);
 
-}
-};
+        setName('');
+        setCategory('');
+        setDifficulty('');
+        setCookTime('');
+        setServings('');
+        setIngredients('');
+        setInstructions('');
+        setImage('');
+        setImagePreview('');
+        setCategory('');
+        setDifficulty('');
+        setCookTime('');
+        setServings('');
+        setIngredients('');
+        setInstructions('');
+      
+
+        window.scrollTo({ top: 0 , behavior: 'smooth' });
+
+
+       
+     }
+     catch(error)
+     {
+        console.error('Error saving recipe: ' , error);
+        setErrors ({ submit : 'An error occurred while saving the recipe. Please try again.' });
+     }
+    };
+     
+  
 
 return (
     <div className="form-page">
@@ -130,18 +153,28 @@ return (
                     type="text"
                     value={name}
 
-                    onChange={(e) => setName (e.target.value)}
+                    onChange={(e) => 
+                        {
+                             setName (e.target.value) ;
+                    updateDraft('name' , e.target.value);}}
+
+
+                    placeholder="Enter recipe name"
+                    className={errors.name ? 'input-error' : '' }
 
                     />
                     {errors.name && <span className="error-message">{errors.name}</span>}
                 </div>
-
                 <div className="form-group">
                     <label htmlFor="category">Category</label>
                     <select
                     id="category"
                     value={category}
-                    onChange={(e) => setCategory (e.target.value)}
+                    onChange={(e) => 
+                        {setCategory (e.target.value)
+                    updateDraft('category' , e.target.value);
+                }}
+                    className={errors.category ? 'input-error' : '' }
                     >
                         <option value="">Select Category</option>
 
@@ -158,9 +191,27 @@ return (
                     </select>
                     {errors.category && <span className="error-message">{errors.category}</span>}
                 </div>
+
+                <div className="form-group">
+<label htmlFor="image">Recipe Image (optional)</label>
+<input
+id="image"
+type="file"
+accept="image/*"
+onChange={handleImageChange}
+/>
+{imagePreview && (
+    <div className="image-preview">
+                <img src={imagePreview} alt="Recipe preview" style={{ maxWidth: '200px', marginTop: '10px', borderRadius: '8px' }} />
+    </div>
+)}
+
+
+                
+               </div>
   
 
-<div className="difficulty">
+<div className="form-group">
 <label htmlFor="difficulty">Difficulty</label>
 <select
 id="difficulty"
