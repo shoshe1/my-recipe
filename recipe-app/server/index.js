@@ -17,13 +17,20 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Routes
+app.use('/api/auth', require('./routes/auth'));
+
 // Test route
 app.get('/', (req, res) => {
   res.json({ 
     message: 'Recipe Manager API',
     status: 'Server is running! 🚀',
     version: '1.0.0',
-    database: 'Connected'
+    database: 'Connected',
+    endpoints: {
+      auth: '/api/auth (POST /register, POST /login, GET /me)',
+      health: '/api/health'
+    }
   });
 });
 
