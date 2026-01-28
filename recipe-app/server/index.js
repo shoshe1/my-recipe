@@ -19,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/recipes', require('./routes/recipes'));
 
 // Test route
 app.get('/', (req, res) => {
@@ -29,6 +30,7 @@ app.get('/', (req, res) => {
     database: 'Connected',
     endpoints: {
       auth: '/api/auth (POST /register, POST /login, GET /me)',
+      recipes: '/api/recipes (GET, POST, PUT /:id, DELETE /:id)',
       health: '/api/health'
     }
   });
