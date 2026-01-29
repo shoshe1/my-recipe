@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
 
+
+const { notFound, errorHandler } = require('./middleware/errorHandler');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -46,6 +48,11 @@ app.get('/api/health', (req, res) => {
     database: 'Connected'
   });
 });
+
+
+// Error Handling Middleware (must be last!)
+app.use(notFound);
+app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {
