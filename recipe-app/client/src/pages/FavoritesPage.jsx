@@ -5,7 +5,7 @@ import './FavoritesPage.css';
 import RecipeModal from '../components/RecipeModal';
 
 import { useSelector , useDispatch } from 'react-redux';
-import {selectFavorites , clearFavorites, clearAllFavorites} from '../store/favoritesSlice';
+import {selectFavorites , clearFavorites, clearAllFavorites, removeFavorite} from '../store/favoritesSlice';
 
 
 function FavoritesPage() {
@@ -24,6 +24,11 @@ function FavoritesPage() {
     const closeModal = () => {
         setShowModal(false);
         setSelectedRecipe(null);
+    };
+
+    const handleDelete = (deletedRecipeId) => {
+        // Remove deleted recipe from favorites if it exists
+        dispatch(removeFavorite(deletedRecipeId));
     };
 
     const handleClearFavorites = () => {
@@ -68,7 +73,11 @@ function FavoritesPage() {
                 )}
 
             {showModal && selectedRecipe && (
-                <RecipeModal recipe={selectedRecipe} onClose={closeModal} />
+                <RecipeModal 
+                    recipe={selectedRecipe} 
+                    onClose={closeModal}
+                    onDelete={handleDelete}
+                />
             )}
         </div>
     );
