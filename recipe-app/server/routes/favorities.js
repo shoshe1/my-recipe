@@ -118,9 +118,64 @@ router.delete('/:recipeId', protect, async (req, res) => {
         });
     }
 
-    });
+});
 
+router.post('/toggle', protect, async (req, res) => {
+    try {
+        const { recipe } = req.body;
+        if (!recipe || !recipe.id || !recipe.name) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide recipe with id and name'
+            });
+        }
 
+        const existingFavorite = await Favorite.findOne({
+            user: req.user._id,
+            'recipe.id': recipe.id
+        });
 
+        if (existingFavorite) {
+            await existingFavorite.deleteOne();
+            return res.status(200).json({
+                success: true,
+                message: 'Removed from favorites',
+                action: 'removed',
+                data: {}
+            });
+        } else {
+            const favorite = await Favorite.create({
+                user: req.user._id,
+                recipe: {
+                    id: recipe.id,
+                    recipeId: recipe.recipeId || null,
+                    name: recipe.name,
+                    image: recipe.image || recipe.strMealThumb,
+                    category: recipe.category || null,
+                    difficulty: recipe.difficulty || null,
+                    cookTime: recipe.cookTime || null,
+                    servings: recipe.servings || null,
+                    ingredients: recipe.ingredients || null,
+                    instructions: recipe.instructions || null,
+                    source: recipe.source || (recipe.idMeal ? 'api' : 'user')
+                }
+            });
+
+            return res.status(201).json({
+                success: true,
+                message: 'Added to favorites',
+                action: 'added',
+                data: favorite
+            });
+        }
+    } catch (error) {
+        console.error('Toggle favorite error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error toggling favorite',
+            error: error.message
+        });
+    }
+});
 
 module.exports = router;
