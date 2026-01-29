@@ -178,4 +178,52 @@ router.post('/toggle', protect, async (req, res) => {
     }
 });
 
+
+router.delete('/', protect, async (req, res) => {
+    try {
+        await Favorite.deleteMany({ user: req.user._id });
+        res.status(200).json({
+            success: true,
+            message: 'All favorites removed',
+            data: {}
+        });
+    } catch (error) {
+        console.error('Clear favorites error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error clearing favorites',
+            error: error.message
+        });
+    }
+});
+
+
+
+router.get('/check/:recipeId', protect, async (req, res) => {
+
+    try {
+        const favorite = await Favorite.findOne({
+            user: req.user._id,
+            'recipe.id': req.params.recipeId
+        });
+
+        res.status(200).json({
+            success: true,
+            isFavorited: !!favorite
+        });
+    } catch (error) {
+
+        console.error('Check favorite error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error checking favorite',
+            error: error.message
+        });
+    }
+});
+
+
+
+
+
 module.exports = router;
