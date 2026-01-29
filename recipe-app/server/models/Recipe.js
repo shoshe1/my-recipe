@@ -46,7 +46,12 @@ const recipeSchema = new mongoose.Schema({
     ingredients: {
         type: [String],
         required: [true, 'Please enter ingredients'],
-        minlength: [1, 'At least one ingredient is required']
+        validate: {
+            validator: function(v) {
+                return v && v.length > 0;
+            },
+            message: 'At least one ingredient is required'
+        }
     },
     instructions: {
         type: [String],
