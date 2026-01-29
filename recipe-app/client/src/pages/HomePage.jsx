@@ -1,79 +1,51 @@
 import { useState, useEffect } from 'react';
 import RecipeCard from '../components/RecipeCard';
+import RecipeModal from '../components/RecipeModal';
+import { recipesAPI } from '../services/api';
 import './HomePage.css';
-
-const sampleRecipes = [
-  {
-    id: 1,
-    name: 'Classic Spaghetti Carbonara',
-    category: 'Italian',
-    difficulty: 'Medium',
-    cookTime: 25,
-    servings: 4,
-    ingredients: 'Spaghetti, eggs, pancetta, parmesan cheese, black pepper',
-    image: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?w=400'
-  },
-  {
-    id: 2,
-    name: 'Chicken Tikka Masala',
-    category: 'Indian',
-    difficulty: 'Hard',
-    cookTime: 45,
-    servings: 6,
-    ingredients: 'Chicken, yogurt, tomatoes, cream, garam masala, ginger, garlic',
-    image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400'
-  },
-  {
-    id: 3,
-    name: 'Caesar Salad',
-    category: 'Salad',
-    difficulty: 'Easy',
-    cookTime: 15,
-    servings: 2,
-    ingredients: 'Romaine lettuce, croutons, parmesan, caesar dressing, lemon',
-    image: 'https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400'
-  },
-  {
-    id: 4,
-    name: 'Chocolate Chip Cookies',
-    category: 'Dessert',
-    difficulty: 'Easy',
-    cookTime: 20,
-    servings: 24,
-    ingredients: 'Flour, butter, sugar, eggs, chocolate chips, vanilla extract',
-    image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400'
-  },
-  {
-    id: 5,
-    name: 'Beef Tacos',
-    category: 'Mexican',
-    difficulty: 'Easy',
-    cookTime: 30,
-    servings: 4,
-    ingredients: 'Ground beef, taco shells, lettuce, tomatoes, cheese, sour cream',
-    image: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400'
-  },
-  {
-    id: 6,
-    name: 'Greek Moussaka',
-    category: 'Greek',
-    difficulty: 'Hard',
-    cookTime: 90,
-    servings: 8,
-    ingredients: 'Eggplant, ground lamb, béchamel sauce, tomatoes, onions, cinnamon',
-    image: 'https://images.unsplash.com/photo-1546069901-d5bfd2cbfb1f?w=400'
-  }
-];
 
 function HomePage() {
   const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    const savedRecipes = JSON.parse(localStorage.getItem('my-recipes') || '[]');
-    setRecipes([...sampleRecipes, ...savedRecipes]);
+    fetchUserRecipes();
   }, []);
 
+  const fetchUserRecipes = async () => {
+    try {
+      setLoading(true);
+      const response = await recipesAPI.getAll();
+      setRecipes(response.data || []);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching recipes:', err);
+      setError('Failed to load recipes');
+      setRecipes([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const handleCardClick = (recipe) => {
+    setSelectedRecipe(recipe);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedRecipe(null);
+  };
+
+  const handleDelete = (deletedRecipeId) => {
+    // Remove the deleted recipe from state
+    setRecipes(prevRecipes => prevRecipes.filter(recipe => recipe._id !== deletedRecipeId));
+  };
 
   const categories = ['All', ...new Set(recipes.map(recipe => recipe.category))];
 
@@ -83,8 +55,19 @@ function HomePage() {
 
   const totalRecipes = recipes.length;
   const avgCookTime = recipes.length > 0 
-    ? Math.round(recipes.reduce((sum, recipe) => sum + recipe.cookTime, 0) / recipes.length)
+    ? Math.round(recipes.reduce((sum, recipe) => sum + (recipe.cookingTime || recipe.cookTime || 0), 0) / recipes.length)
     : 0;
+
+  if (loading) {
+    return (
+      <div className="home-page">
+        <div className="loading-container">
+          <div className="loading-spinner">⏳</div>
+          <p>Loading your recipes...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="home-page">
@@ -92,9 +75,18 @@ function HomePage() {
         <div className="home-title-section">
           <h1 className="page-title">My Recipe Collection</h1>
           <p className="page-subtitle">
-            Organize and manage your favorite recipes
+            {recipes.length > 0 
+              ? 'Organize and manage your favorite recipes'
+              : 'Start by creating your first recipe!'
+            }
           </p>
         </div>
+
+        {error && (
+          <div className="error-banner">
+            ❌ {error}
+          </div>
+        )}
 
         <div className="home-stats">
           <div className="stat-card">
@@ -130,16 +122,37 @@ function HomePage() {
       <div className="recipes-grid">
         {filteredRecipes.map((recipe) => (
           <RecipeCard 
-            key={recipe.id} 
+            key={recipe._id || recipe.id} 
             recipe={recipe}
+            onCardClick={handleCardClick}
           />
         ))}
       </div>
 
-      {filteredRecipes.length === 0 && (
+      {filteredRecipes.length === 0 && !loading && (
         <div className="no-recipes">
-          <p>No recipes found in this category.</p>
+          <div className="empty-icon">📝</div>
+          <h2>
+            {recipes.length === 0 
+              ? 'No recipes yet' 
+              : 'No recipes found in this category'
+            }
+          </h2>
+          <p>
+            {recipes.length === 0 
+              ? 'Create your first recipe to get started!'
+              : 'Try selecting a different category.'
+            }
+          </p>
         </div>
+      )}
+
+      {showModal && selectedRecipe && (
+        <RecipeModal 
+          recipe={selectedRecipe} 
+          onClose={closeModal}
+          onDelete={handleDelete}
+        />
       )}
     </div>
   );
