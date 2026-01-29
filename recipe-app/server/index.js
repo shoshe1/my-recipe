@@ -20,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/recipes', require('./routes/recipes'));
+app.use('/api/favorites', require('./routes/favorities'));
 
 // Test route
 app.get('/', (req, res) => {
@@ -31,6 +32,7 @@ app.get('/', (req, res) => {
     endpoints: {
       auth: '/api/auth (POST /register, POST /login, GET /me)',
       recipes: '/api/recipes (GET, POST, PUT /:id, DELETE /:id)',
+      favorites: '/api/favorites (GET, POST, DELETE /:id, POST /toggle, DELETE /)',
       health: '/api/health'
     }
   });
