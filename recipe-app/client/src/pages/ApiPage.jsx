@@ -15,7 +15,7 @@ function ApiPage() {
 
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
-    const [apiUrl , setApiUrl]= useState ('https://www.themealdb.com/api/json/v1/1/search.php?s=chicken');
+    const [apiUrl , setApiUrl]= useState ('https://www.themealdb.com/api/json/v1/1/search.php?s=');
     const [showModal , setShowModal] = useState(false);
 
 
@@ -32,7 +32,8 @@ function ApiPage() {
 
 
     const handleRandomRecipe = () => {
-        setApiUrl ('https://www.themealdb.com/api/json/v1/1/random.php');
+        // Add timestamp to force refetch each time
+        setApiUrl (`https://www.themealdb.com/api/json/v1/1/random.php?t=${Date.now()}`);
     };
 
     const handleCardClick = (recipe) => {
