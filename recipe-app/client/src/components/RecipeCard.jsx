@@ -8,7 +8,7 @@ import{toggleFavorite , selectIsFavorite} from '../store/favoritesSlice';
 function RecipeCard({ recipe , onCardClick}) {
 
 const dispatch = useDispatch();
-const recipeId = recipe.id || recipe.idMeal;
+const recipeId = recipe.id || recipe.idMeal || recipe._id;
 const isInFavorites = useSelector((state) => selectIsFavorite(state, recipeId));
 
 const handleFavoriteClick = (e) => {
