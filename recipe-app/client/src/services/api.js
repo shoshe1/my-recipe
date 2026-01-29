@@ -47,8 +47,8 @@ export const authAPI = {
   // Register new user
   register: async (userData) => {
     const response = await api.post('/auth/register', userData);
-    if (response.data.data.token) {
-      localStorage.setItem('token', response.data.data.token);
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.data.user));
     }
     return response.data;
@@ -57,8 +57,8 @@ export const authAPI = {
   // Login user
   login: async (credentials) => {
     const response = await api.post('/auth/login', credentials);
-    if (response.data.data.token) {
-      localStorage.setItem('token', response.data.data.token);
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.data.user));
     }
     return response.data;
