@@ -87,4 +87,40 @@ router.post('/', protect, async (req, res) => {
     }
 });
 
+
+
+router.delete('/:recipeId', protect, async (req, res) => {
+
+    try {
+        const favorite = await Favorite.findOneAndDelete({
+            user: req.user._id,
+            'recipe.id': req.params.recipeId
+        });
+
+        if (!favorite) {
+            return res.status(404).json({
+                success: false,
+                message: 'Favorite not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Favorite removed',
+            data: {}
+        });
+    } catch (error) {
+        console.error('Delete favorite error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error removing favorite',
+            error: error.message
+        });
+    }
+
+    });
+
+
+
+
 module.exports = router;
